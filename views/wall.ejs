@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wall Assignment - Intermediate version</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+    <script src="/assets/js/wall.js"></script>
+</head>
+<body>
+    <header>
+        <h1>CodingDojo Wall</h1>
+        <p>Welcom <%= user[0].first_name %></p>
+        <a href="/logoff">log off</a>
+    </header>
+
+    <hr>
+
+    <div id="wrapper">
+        <h2>Post a message</h2>
+        <form action="/message_post" id="message_post" method="POST">
+            <input type="hidden" name="message_id" value="<%= next_id %>">
+            <input type="hidden" name="user_id" value="<%= user[0].id %>">
+            <link rel="stylesheet" href="/assets/css/stylesheet.css">
+            <textarea name="message" placeholder="Enter your message."></textarea><br>
+            <input type="submit" value="Post a message">
+        </form>
+        
+        <br>
+        <% for(const message_content in result) {
+            let message = result[message_content];
+            %>
+            <div class="message">
+                <h3><%= message.message_sender_name %> - <%= message.message_date %></h3>
+                <p><%= message.message_content %></p>
+                <%  console.log(message); 
+                if(message.user_id === user[0].id) {%>
+                    <form action="/delete_message/<%= message.message_id %>" method="GET">
+                        <input type="" name="message_id" value="<%= message.message_id %>">
+                        <input type="" name="message_user_id" value="<%= message.user_id %>">
+                        <input type="submit" value="Delete comment">
+                    </form>
+                <% } %>
+            </div>
+            
+            <% 
+            
+            if(message.comment !== undefined) {
+                for(const comment_content in message.comment) {
+                    let comment = message.comment[comment_content];
+                    %>
+
+                <div class="comment">
+                    <h3><%= comment.comment_sender_name %> - <%= comment.comment_date %></h3>
+                    <p><%= comment.comment_content %></p>
+                    <% if(comment.user_id === user[0].id) {%>
+                    <form action="/delete_comment/<%= comment.comment_id %>" method="GET">
+                        <input type="" name="comment_id" value="<%= comment.comment_id %>">
+                        <input type="" name="comment_user_id" value="<%= comment.user_id %>">
+                        <input type="submit" value="Delete comment">
+                    </form>
+                    <% } %>
+                </div>
+                <% } %>
+            <% } %>
+            <% if(result[message_content].message_id!==undefined) { %>
+                <div class="textcomment">
+                <form action="/comment_post" id="comment_post" method="POST">
+                    <input type="hidden" name="message_id" value="<%= result[message_content].message_id %>">
+                    <input type="hidden" name="user_id" value="<%= user[0].id %>">
+                    <textarea name="comment" placeholder="Enter your comment."></textarea><br>
+                    <input type="submit" value="Post a comment">
+                </form>
+                </div>
+            <% } %>
+        <% } %>
+                
+    </div>
+
+</body>
+</html>
