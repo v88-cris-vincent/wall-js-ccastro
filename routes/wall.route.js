@@ -6,15 +6,42 @@ const WallController = require("../controllers/wall.controller");
 const WallRoute = Router();
 
 WallRoute.get("/", (req, res) => { new ViewController(req, res).homepage(); });
+WallRoute.get("/wall", (req, res) => { new ViewController(req, res).wall(); });
+WallRoute.get("/logoff", (req, res) => { new ViewController(req, res).logoff(); });
+
 WallRoute.post("/login", (req, res) => { new UserController(req, res).login(); });
 WallRoute.post("/register", (req, res) => { new UserController(req, res).register(); });
-WallRoute.get("/wall", (req, res) => { new WallController(req, res).wall(); });
-WallRoute.post("/wall", (req, res) => { new WallController(req, res).wall(); });
-WallRoute.get("/organized", (req, res) => { new WallController(req, res).organized(); });
-WallRoute.post("/message_post", (req, res) => { new WallController(req, res).message_post(); });
-WallRoute.post("/comment_post", (req, res) => { new WallController(req, res).comment_post(); });
-WallRoute.get("/delete_comment/:id", (req, res) => { new WallController(req, res).delete_comment(); });
-WallRoute.get("/logoff", (req, res) => { new UserController(req, res).logoff(); });
+
+WallRoute.post("/message_post", (req, res) => { 
+    try{
+        new WallController(req, res).messagePost()
+    }
+    catch(error) {
+        res.json({error: error.message})
+    }; });
+WallRoute.post("/delete_message", (req, res) => {
+    try{
+        new WallController(req, res).deleteMessage()
+    }
+    catch(error) {
+        res.json({error: error.message})
+    }; });
+
+WallRoute.post("/comment_post", (req, res) => {
+    try{
+        new WallController(req, res).commentPost()
+    }
+    catch(error) {
+        res.json({error: error.message})
+    }; });
+WallRoute.post("/delete_comment", (req, res) => {
+    try {
+        new WallController(req, res).deleteComment()
+    }
+    catch(error) {
+        res.json({error: error.message})
+    }; });
+
 
 
 module.exports = WallRoute;

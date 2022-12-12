@@ -15,7 +15,7 @@ $(document).ready( () => {
         return false;
     });
 
-    $("#comment_post").on("submit", function(){
+    $(".comment_post").on("submit", function(){
         let form = $(this);
 
         $.post(form.attr("action"), $(form).serialize(), (data) => {
@@ -31,7 +31,7 @@ $(document).ready( () => {
         return false;
     });
 
-    $("#delete_comment").on("submit", function(){
+    $(".delete_comment").on("submit", function(){
         let form = $(this);
 
         $.post(form.attr("action"), $(form).serialize(), (data) => {
@@ -47,7 +47,7 @@ $(document).ready( () => {
         return false;
     });
 
-    $("#delete_message").on("submit", function(){
+    $(".delete_message").on("submit", function(){
         let form = $(this);
 
         $.post(form.attr("action"), $(form).serialize(), (data) => {

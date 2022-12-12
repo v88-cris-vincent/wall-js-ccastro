@@ -1,7 +1,7 @@
 const MD5               = require("md5");
 const UserModel         = require("../models/user.model");
 const { checkFields }   = require("../helpers/index.helper");
-const e                 = require("express");
+const session           = require("express");
 
 class UserController {
     #req;
@@ -21,10 +21,10 @@ class UserController {
             if(check_fields.result && check_fields.result.password !== undefined) {
                 let user = await UserModel.getUser(["email = ? AND password = ?"], [check_fields.result.email_address, MD5(check_fields.result.password)]);
                 
-                if(user.result.length) {
+                if(user.status && user.result.length) {
                     response_data.status = true;
                     this.#req.session.user = user.result;
-                    response_data.user = this.#req.session.user;
+                    this.#req.session.save();
                 }
                 else {
                     response_data.status = false;
@@ -73,12 +73,6 @@ class UserController {
         }
         this.#res.json(response_data);
     }
-
-    logoff = async () => {
-        this.#req.session.user = null;
-        this.#res.redirect("/");
-    }
-
 
 }
 module.exports = UserController;

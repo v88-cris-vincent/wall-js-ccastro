@@ -14,13 +14,18 @@ Helper.checkFields = (required_fields, req_body) => {
                 sanitized_data[selected_key] = req_body[selected_key];
             }
             else{
-                missing_fields.push(selected_key);
+                missing_fields.push(" " + selected_key);
             }
         }
 
         if(missing_fields.length){
             response_data.result = { missing_fields };
-            response_data.error  = response_data.result.missing_fields + " is/are required.";
+            if(missing_fields.length === 1) {
+                response_data.error  = response_data.result.missing_fields + " is required.";
+            }
+            else {
+                response_data.error  = response_data.result.missing_fields + " are required.";
+            }
         }
         else{
             response_data.status = true;

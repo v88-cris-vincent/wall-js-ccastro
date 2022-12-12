@@ -5,17 +5,11 @@ class WallModel {
 
     constructor () {}
 
-    get_all_messages = async () => {
+    get_all_details = async () => {
         let response_data = { status: false, result: {}, error: null };
 
         try {
-            let get_user_query = Mysql.format(` SELECT messages.id AS message_id,
-                                                    message AS message_content,
-                                                    DATE_FORMAt(messages.created_at, "%M %D %Y") AS message_date,
-                                                    messages.user_id,
-                                                    CONCAT(u1.first_name," ",u1.last_name) AS message_sender_name
-                                                    FROM messages
-                                                    LEFT JOIN users u1 on messages.user_id = u1.id;`);
+            let get_user_query = Mysql.format(` SELECT * FROM walls;`);
             response_data = await DBConnection.executeQuery(get_user_query);
         }
         catch(error) {
@@ -24,27 +18,6 @@ class WallModel {
         return response_data;
     }
     
-    get_all_comments = async () => {
-        let response_data = { status: false, result: {}, error: null };
-
-        try {
-            let get_user_query = Mysql.format(` SELECT comments.id AS comment_id,
-                                                    comments.user_id,
-                                                    comments.message_id,
-                                                    comment AS comment_content,
-                                                    DATE_FORMAt(comments.created_at, "%M %D %Y") AS comment_date,
-                                                    CONCAT(u1.first_name," ",u1.last_name) AS comment_sender_name
-                                                    FROM comments
-                                                    LEFT JOIN users u1 on comments.user_id = u1.id
-                                                    ORDER BY comments.message_id DESC, comments.created_at ASC;`);
-            response_data = await DBConnection.executeQuery(get_user_query);
-        }
-        catch(error) {
-            response_data.error = error;
-        }
-        return response_data;
-    }
-
     get_next_id = async () => {
         let response_data = { status: false, result: {}, error: null };
 
@@ -65,7 +38,11 @@ class WallModel {
 
         try {
             let addingmessage = Mysql.format(`  INSERT INTO messages (user_id, message, created_at)
-                                                    VALUES ("${user_data.user_id}", "${user_data.message}", NOW());`);
+                                                    VALUES (?, ?, NOW())`,
+                                                    [
+                                                        user_data.user_id,
+                                                        user_data.message
+                                                    ]);
             response_data = await DBConnection.executeQuery(addingmessage);
         }
         catch (error) {
@@ -79,7 +56,12 @@ class WallModel {
 
         try {
             let addingcomment = Mysql.format(`  INSERT INTO comments (user_id, message_id, comment, created_at)
-                                                    VALUES ("${user_data.user_id}", "${user_data.message_id}", "${user_data.comment}", NOW());`);
+                                                    VALUES (?, ?, ?, NOW())`,
+                                                    [
+                                                        user_data.user_id,
+                                                        user_data.message_id,
+                                                        user_data.comment
+                                                    ]);
             response_data = await DBConnection.executeQuery(addingcomment);
         }
         catch (error) {
@@ -92,9 +74,9 @@ class WallModel {
         let response_data = { status: false, result: {}, error: null };
 
         try {
-            let deletecomment = Mysql.format(`  DELETE FROM comments WHERE id = "${user_data.comment_id}";` );
+            let delete_comment = Mysql.format(`  DELETE FROM comments WHERE id = ?`, user_data.comment_id );
 
-            response_data = await DBConnection.executeQuery(deletecomment);
+            response_data = await DBConnection.executeQuery(delete_comment);
         }
         catch (error) {
             response_data.error = error;
@@ -106,9 +88,9 @@ class WallModel {
         let response_data = { status: false, result: {}, error: null };
 
         try {
-            let deletecomment = Mysql.format(`  DELETE FROM messages WHERE id = "${user_data.message_id}";` );
+            let delete_message = Mysql.format(`  DELETE FROM messages WHERE id = ?` , user_data.message_id );
 
-            response_data = await DBConnection.executeQuery(deletecomment);
+            response_data = await DBConnection.executeQuery(delete_message);
         }
         catch (error) {
             response_data.error = error;
@@ -120,29 +102,8 @@ class WallModel {
         let response_data = { status: false, result: {}, error: null };
 
         try{
-            let all_messages = await this.get_all_messages();
-            let all_comments = await this.get_all_comments();
-            let organized_contents = {};
-            let organized_comments = {};
-            let messages = all_messages.result;
-            let comments = all_comments.result;
-
-            for(let message_index in messages){
-                let message = messages[message_index];
-
-                organized_contents[message.message_id] = {...message};
-                organized_comments.comments = {};
-                
-                for(let comment_index in comments) {
-                    let comment = comments[comment_index];
-
-                    if(message.message_id === comment.message_id) {
-                        organized_contents[message.message_id].comment = [{...comment}];
-                    }
-                }
-            }
-            console.log("2 "+organized_contents);
-            response_data.result = organized_contents;
+            let all_data = await this.get_all_details();
+            response_data.result = all_data.result;
         }
         catch (error) {
             response_data.error = error;
